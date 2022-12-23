@@ -19,7 +19,6 @@ WINDOW_SIZE = 235
 DISPLAY_HEIGHT = 35
 BUTTON_SIZE = 40
 ERROR_MSG = "ERROR"
-WINDOW_SIZE = 235
 #creates a python constant to hold fixed window size in pixels
 
 class CalcWindow(QMainWindow):
@@ -47,6 +46,7 @@ class CalcWindow(QMainWindow):
         self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
         #left-aligned
         self.display.setReadOnly(True)
+        #user can't edit the display
         self.generalLayout.addWidget(self.display)
         #Adds the display to the general layout of the calculator
 
@@ -60,7 +60,7 @@ class CalcWindow(QMainWindow):
             ["1", "2", "3", "-", ")"],
             ["0", "00", ".", "+", "="],
         ]
-        #create a list of lists to store the key labels
+        #create a list of lists to store the key labels; A way to represent their coordinates on the grid
         for row, keys in enumerate(keyBoard):
         # goes through each row
             for col, key in enumerate(keys):
@@ -89,11 +89,13 @@ def evaluateExpression(expression):
 #(Model)
     try:
         result = str(eval(expression, {}, {}))
+        #evaluate a math expression that comes as a string
     except Exception:
         result = ERROR_MSG
     return result
 
 class Calc:
+#Calc's controller class
     def __init__(self, model, view):
     #define the class initializer which takes two arguments
         self._evaluate = model
@@ -103,7 +105,7 @@ class Calc:
         #makes all the required connections of signals and slots
 
     def _calculateResult(self):
-        result = self._evaluate(expression=self._view.displayText())
+        result = self._evaluate(expression = self._view.displayText())
         #use ._evaluate to solve the math expression that the user typed in the display
         self._view.setDisplayText(result)
         #updates the display text with the result
@@ -121,6 +123,7 @@ class Calc:
             if keySymbol not in {"=", "C"}:
                 button.clicked.connect(
                     partial(self._buildExpression, keySymbol)
+                    #buttons are added to the display as long as not = or C
                 )
         self._view.buttonMap["="].clicked.connect(self._calculateResult)
         self._view.display.returnPressed.connect(self._calculateResult)
